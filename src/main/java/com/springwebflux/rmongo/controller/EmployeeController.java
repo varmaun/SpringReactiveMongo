@@ -1,5 +1,7 @@
 package com.springwebflux.rmongo.controller;
 
+import java.time.Duration;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.springwebflux.rmongo.model.Employee;
 import com.springwebflux.rmongo.service.EmployeeService;
 
+import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
+@Log4j2
 public class EmployeeController {
 	@Autowired
 	private EmployeeService employeeService;
@@ -49,9 +53,9 @@ public class EmployeeController {
 
 	@GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	@ResponseBody
-	public ResponseEntity<Flux<Employee>> findAll() {
+	public Flux<Employee> findAll() {
 		Flux<Employee> emps = employeeService.findAll();
-		return new ResponseEntity<Flux<Employee>>(emps, HttpStatus.OK);
+		return emps.delayElements(Duration.ofSeconds(1));
 	}
 
 	@PutMapping(value = "/update")
